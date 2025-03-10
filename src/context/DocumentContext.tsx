@@ -22,10 +22,9 @@ const DocumentContext = createContext<DocumentContextType>({
   shareDocument: () => {},
 });
 
-export const useDocuments = () => useContext(DocumentContext);
 
-// Mock documents
-const mockDocuments: Document[] = [
+// Function to return mock documents
+const getMockDocuments = (): Document[] => [
   {
     id: '1',
     name: 'Contract Agreement.pdf',
@@ -64,15 +63,15 @@ export const DocumentProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       try {
         // Simulate API call
         await new Promise(resolve => setTimeout(resolve, 800));
-        
+
         if (user) {
           // Filter documents for the current user
-          const userDocuments = mockDocuments.filter(doc => doc.ownerId === user.id);
+          const userDocuments = getMockDocuments().filter(doc => doc.ownerId === user.id);
           setDocuments(userDocuments);
         } else {
           setDocuments([]);
         }
-      } catch (err) {
+      } catch {
         setError('Failed to load documents');
       } finally {
         setIsLoading(false);
@@ -84,7 +83,7 @@ export const DocumentProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const addDocument = (newDoc: Omit<Document, 'id' | 'uploadDate' | 'lastModified' | 'signed' | 'shared' | 'ownerId'>) => {
     if (!user) return;
-    
+
     const document: Document = {
       ...newDoc,
       id: Date.now().toString(),
@@ -94,7 +93,7 @@ export const DocumentProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       shared: false,
       ownerId: user.id,
     };
-    
+
     setDocuments(prev => [document, ...prev]);
   };
 
@@ -103,16 +102,16 @@ export const DocumentProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const signDocument = (id: string) => {
-    setDocuments(prev => 
-      prev.map(doc => 
+    setDocuments(prev =>
+      prev.map(doc =>
         doc.id === id ? { ...doc, signed: true, lastModified: new Date() } : doc
       )
     );
   };
 
   const shareDocument = (id: string) => {
-    setDocuments(prev => 
-      prev.map(doc => 
+    setDocuments(prev =>
+      prev.map(doc =>
         doc.id === id ? { ...doc, shared: true, lastModified: new Date() } : doc
       )
     );
@@ -134,3 +133,5 @@ export const DocumentProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     </DocumentContext.Provider>
   );
 };
+
+export const useDocuments = () => useContext(DocumentContext);

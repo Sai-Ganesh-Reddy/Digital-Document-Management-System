@@ -49,6 +49,7 @@ const SignupForm: React.FC = () => {
       navigate('/dashboard');
     } catch (err) {
       // Error is handled in the AuthContext
+      console.log(err)
     }
   };
 
